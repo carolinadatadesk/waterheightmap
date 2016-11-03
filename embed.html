@@ -1,0 +1,199 @@
+<!doctype html>
+<head>
+  <!-- <meta name="HandheldFriendly" content="true" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, width=device-width, user-scalable=no" /> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"/></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.2.1/chroma.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Montserrat');
+    #mapid{
+      height:400px;
+      width:100%;
+    }
+    #scale{
+      width: 100%;
+      height:20px;
+    }
+    #container{
+      /*max-width:600px;*/
+      font-family:Montserrat;
+      font-weight:900;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <div id="mapid"></div>
+    <div id="scale">
+      <svg id="scaleSVG" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <rect x="0" y="0" height="100" width="10" fill="#e5e8ef"/>
+        <rect x="10" y="0" height="100" width="10" fill="#ced4e1"/>
+        <rect x="20" y="0" height="100" width="10" fill="#b7bfd3"/>
+        <rect x="30" y="0" height="100" width="10" fill="#a1acc5"/>
+        <rect x="40" y="0" height="100" width="10" fill="#8b98b8"/>
+        <rect x="50" y="0" height="100" width="10" fill="#7486aa"/>
+        <rect x="60" y="0" height="100" width="10" fill="#5e739d"/>
+        <rect x="70" y="0" height="100" width="10" fill="#46628f"/>
+        <rect x="80" y="0" height="100" width="10" fill="#2c5082"/>
+        <rect x="90" y="0" height="100" width="10" fill="#004075"/>
+
+      </svg>
+    </div>
+    <div style="height:20px; float:left;">
+      0 ft <span id="testfill"></span>
+    </div>
+    <div style="height:20px; float:right; text-align:right;">
+      10+ <br />
+      <span style="font-weight:400">Source: USGS.gov</span>
+    </div>
+  </div>
+
+
+  <script>
+
+    var getUrlParameter = function getUrlParameter(sParam) {
+      var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+
+      for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+
+          if (sParameterName[0] === sParam) {
+              return sParameterName[1] === undefined ? true : sParameterName[1];
+          }
+      }
+  };
+
+    var state=getUrlParameter("state");
+
+/*
+
+*/
+
+
+  // BUILD MAP
+
+var stateCenters=
+[
+  {"state":"AL","center":[32.7990,-86.8073]},
+  {"state":"AK","center":[64.2008,-149.4937]},
+  {"state":"AR","center":[34.9513,-92.3809]},
+  {"state":"AS","center":[14.2417,-170.7197]},
+  {"state":"AZ","center":[33.7712,-111.3877]},
+  {"state":"CA","center":[36.1700,-119.7462]},
+  {"state":"CO","center":[39.0646,-105.3272]},
+  {"state":"CT","center":[41.5834,-72.7622]},
+  {"state":"DC","center":[38.8964,-77.0262]},
+  {"state":"DE","center":[39.3498,-75.5148]},
+  {"state":"FL","center":[27.8333,-81.7170]},
+  {"state":"GA","center":[32.9866,-83.6487]},
+  {"state":"HI","center":[21.1098,-157.5311]},
+  {"state":"IA","center":[42.0046,-93.2140]},
+  {"state":"ID","center":[44.2394,-114.5103]},
+  {"state":"IL","center":[40.3363,-89.0022]},
+  {"state":"IN","center":[39.8647,-86.2604]},
+  {"state":"KS","center":[38.5111,-96.8005]},
+  {"state":"KY","center":[37.6690,-84.6514]},
+  {"state":"LA","center":[31.1801,-91.8749]},
+  {"state":"MA","center":[42.2373,-71.5314]},
+  {"state":"MD","center":[39.0724,-76.7902]},
+  {"state":"ME","center":[44.6074,-69.3977]},
+  {"state":"MI","center":[43.3504,-84.5603]},
+  {"state":"MN","center":[45.7326,-93.9196]},
+  {"state":"MO","center":[38.4623,-92.3020]},
+  {"state":"MP","center":[14.8058,145.5505]},
+  {"state":"MS","center":[32.7673,-89.6812]},
+  {"state":"MT","center":[46.9048,-110.3261]},
+  {"state":"NC","center":[35.6411,-79.8431]},
+  {"state":"ND","center":[47.5362,-99.7930]},
+  {"state":"NE","center":[41.1289,-98.2883]},
+  {"state":"NH","center":[43.4108,-71.5653]},
+  {"state":"NJ","center":[40.3140,-74.5089]},
+  {"state":"NM","center":[34.8375,-106.2371]},
+  {"state":"NV","center":[38.4199,-117.1219]},
+  {"state":"NY","center":[42.1497,-74.9384]},
+  {"state":"OH","center":[40.3736,-82.7755]},
+  {"state":"OK","center":[35.5376,-96.9247]},
+  {"state":"OR","center":[44.5672,-122.1269]},
+  {"state":"PA","center":[40.5773,-77.2640]},
+  {"state":"PR","center":[18.2766,-66.3350]},
+  {"state":"RI","center":[41.6772,-71.5101]},
+  {"state":"SC","center":[33.8191,-80.9066]},
+  {"state":"SD","center":[44.2853,-99.4632]},
+  {"state":"TN","center":[35.7449,-86.7489]},
+  {"state":"TX","center":[31.1060,-97.6475]},
+  {"state":"UT","center":[40.1135,-111.8535]},
+  {"state":"VA","center":[37.7680,-78.2057]},
+  {"state":"VI","center":[18.0001,-64.8199]},
+  {"state":"VT","center":[44.0407,-72.7093]},
+  {"state":"WA","center":[47.3917,-121.5708]},
+  {"state":"WI","center":[44.2563,-89.6385]},
+  {"state":"WV","center":[38.4680,-80.9696]},
+  {"state":"WY","center":[42.7475,-107.2085]}
+];
+
+
+
+for (var i=0 ; i < stateCenters.length ; i++)
+{
+    if (stateCenters[i].state == state) {
+        centerLat=stateCenters[i].center[0];
+        centerLng=stateCenters[i].center[1];
+    }
+}
+
+    // var centerLat=35.604955;
+    // var centerLng=-79.873603;
+    var mymap = L.map('mapid').setView([centerLat, centerLng], 6);
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/langston/ciu78asr700gh2ilfldarha0p/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibGFuZ3N0b24iLCJhIjoiY2l1Nzg2Y2VmMGpnNDMwbGgwOHh0ZGp5NCJ9.mgmSlD3jmIiD6tR5cXlT9w', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'ciu794gsz00h52inz99eo895r',
+        accessToken: 'pk.eyJ1IjoibGFuZ3N0b24iLCJhIjoiY2l1Nzg2Y2VmMGpnNDMwbGgwOHh0ZGp5NCJ9.mgmSlD3jmIiD6tR5cXlT9w'
+    }).addTo(mymap);
+
+
+    colorScale = chroma.scale(['#e5e8ef','#004075'])
+      .domain([0,15]);
+
+    // GET WATER API DATA
+      $(document).ready(function() {
+        $.ajax({
+          url: "http://waterservices.usgs.gov/nwis/iv?format=json&stateCd="+state+"&parameterCd=00065",
+          dataType: 'json',
+          data: '',
+          success: function(json){
+            sites=json.value.timeSeries;
+
+            for (i=0;i<sites.length;i++){
+
+              waterHeight=sites[i].values["0"].value["0"].value;
+              if(waterHeight!=-999999) {
+                  L.circleMarker([sites[i].sourceInfo.geoLocation.geogLocation.latitude, sites[i].sourceInfo.geoLocation.geogLocation.longitude],{
+                    stroke:false,
+                    fillOpacity:1,
+                    fillColor: colorScale(waterHeight)
+                  }).addTo(mymap).bindPopup(sites[i].sourceInfo.siteName+":<br />Gage height: <b>"+waterHeight+" feet</b>");
+              }
+
+            }
+
+          }
+        });
+      });
+
+
+
+
+  </script>
+
+
+</body>
+</html>
